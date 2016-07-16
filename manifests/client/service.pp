@@ -48,11 +48,19 @@ class sensu::client::service (
 
     }
 
+    # Puppet 4 assumes that CentOS 7 uses systemd, but the package does not have a systemd script yet
+    if ($::operatingsystem == 'CentOS' and $::operatingsystemmajrelease == '7') {
+      $service_provider = 'redhat'
+    } else {
+      $service_provider = undef
+    }
+
     service { 'sensu-client':
       ensure     => $ensure,
       enable     => $enable,
       hasrestart => $hasrestart,
       subscribe  => [Class['sensu::package'], Class['sensu::client::config'], Class['sensu::rabbitmq::config'] ],
+      provider   => $service_provider,
     }
   }
 }
