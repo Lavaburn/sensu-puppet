@@ -45,7 +45,8 @@ Puppet::Type.newtype(:sensu_check) do
   newproperty(:handlers, :array_matching => :all) do
     desc "List of handlers that responds to this check"
     def insync?(is)
-      is.sort == should.sort
+      return is.sort == should.sort if is.is_a?(Array) && should.is_a?(Array)
+      is == should
     end
   end
 
@@ -81,7 +82,8 @@ Puppet::Type.newtype(:sensu_check) do
   newproperty(:subscribers, :array_matching => :all) do
     desc "Who is subscribed to this check"
     def insync?(is)
-      is.sort == should.sort
+      return is.sort == should.sort if is.is_a?(Array) && should.is_a?(Array)
+      is == should
     end
   end
 
@@ -124,8 +126,15 @@ Puppet::Type.newtype(:sensu_check) do
     desc "Check timeout in seconds, after it fails"
   end
 
-  newproperty(:aggregate, :parent => PuppetX::Sensu::BooleanProperty) do
+  newproperty(:aggregate) do
     desc "Whether check is aggregate"
+  end
+
+  newproperty(:aggregates, :array_matching => :all) do
+    desc "An array of aggregates to add to the check"
+    def insync?(is)
+      is.sort == should.sort
+    end
   end
 
   newproperty(:handle, :parent => PuppetX::Sensu::BooleanProperty) do
